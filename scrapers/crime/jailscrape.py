@@ -1,11 +1,22 @@
-import urllib2
+import os
+import requests
 import csv
-from BeautifulSoup import BeautifulSoup
+import lxml.html
+import pickle
 
 url = 'http://www.showmeboone.com/sheriff/JailResidents/JailResidents.asp'
 
+# Download the page
+if os.path.exists('response.p'):
+    with open('response.p', 'rb') as fp:
+        response = pickle.load(fp)
+else:
+    response = requests.get(url)
+    with open('response.p', 'wb') as fp:
+        pickle.dump(response, fp)
+
 # Open the HTML file and turn it into a BeautifulSoup object for parsing
-html = urllib2.urlopen(url).read()
+html = response.text
 soup = BeautifulSoup(html)
 
 # The scrape actually starts here. Let's get the table that contains the results.
@@ -29,7 +40,7 @@ for tr in only_table.findAll('tr'):
 
 # Finally, we'll write our results to a file
 
-print output_trs
+print(output_trs)
 
 handle = open('out.csv', 'a')
 outfile = csv.writer(handle)
